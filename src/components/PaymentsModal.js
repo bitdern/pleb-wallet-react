@@ -26,12 +26,14 @@ const PaymentsModal = ({ modalState, setModalState }) => {
     checkingId: "",
   });
 
+  const apiKey = process.env.REACT_APP_X_API_KEY;
+
   const handleSend = (e) => {
     // Keep the page from refreshing when the form is submitted
     e.preventDefault();
 
     const headers = {
-      "X-Api-Key": "52cac212fc664da393ac45df991fdb84",
+      "X-Api-Key": "468943b84a104383a54b02a35ab33246",
     };
     const data = {
       bolt11: formData.invoiceToPay,
@@ -46,11 +48,45 @@ const PaymentsModal = ({ modalState, setModalState }) => {
         })
       )
       .catch((err) => console.log(err));
+  };
+
+  const handleReceive = (e) => {
+    // Keep the page from refreshing when the form is submitted
+    e.preventDefault();
+
+    const headers = {
+      "X-Api-Key": "468943b84a104383a54b02a35ab33246",
+    };
+    const data = {
+      amount: formData.amount,
+      out: false,
+      // ToDo: Add additional form for user to be able to customize the memo
+      memo: "LNBits",
+    };
+    axios
+      .post("https://legend.lnbits.com/api/v1/payments", data, { headers })
+      .then((res) => setInvoice(res.data.payment_request))
+      .catch((err) => console.log(err));
 
     return;
   };
 
-  const handleReceive = () => {};
+  // Function to clear all of our state when we close the modal
+  const clearForms = () => {
+    setModalState({
+      type: "",
+      open: false,
+    });
+    setInvoice("");
+    setPaymentInfo({
+      paymentHash: "",
+      checkingId: "",
+    });
+    setFormData({
+      amount: 0,
+      invoiceToPay: "",
+    });
+  };
 
   return (
     <Modal
@@ -62,7 +98,7 @@ const PaymentsModal = ({ modalState, setModalState }) => {
       <p
         className="close-button"
         onClick={() => {
-          setModalState({ open: false, type: null });
+          clearForms();
         }}
       >
         X
@@ -119,3 +155,5 @@ const PaymentsModal = ({ modalState, setModalState }) => {
     </Modal>
   );
 };
+
+export default PaymentsModal;
